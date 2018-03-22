@@ -1,1 +1,2 @@
+dataclasses==0.4
 PyYaml==3.12

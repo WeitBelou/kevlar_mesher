@@ -1,9 +1,11 @@
 from . import args
+from . import config
 
 
 def main():
     cmd_args = args.CommandLineArgs()
-    print(cmd_args)
+    cfg = config.parse(cmd_args.config)
+    print(cfg)
 
 
 if __name__ == '__main__':

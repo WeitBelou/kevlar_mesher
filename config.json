@@ -1,0 +1,11 @@
+{
+  "fibers": {
+    "diameter": 2,
+    "weft": {"density": 10},
+    "warp": {"density": 5}
+  },
+  "layer": {
+    "length": 50,
+    "width": 50
+  }
+}
