@@ -28,6 +28,7 @@ class Layer:
 
 @dataclass
 class Config:
+    resolution: int
     fibers: Fibers
     layer: Layer
 
@@ -37,6 +38,7 @@ def parse(f: IO) -> Config:
     data = yaml.load(f)
 
     return Config(
+        resolution=data['resolution'],
         fibers=Fibers(
             diameter=data['fibers']['diameter'],
             weft=Weft(density=data['fibers']['weft']['density']),

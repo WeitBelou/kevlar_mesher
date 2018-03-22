@@ -1,4 +1,5 @@
 {
+  "resolution": 10,
   "fibers": {
     "diameter": 2,
     "weft": {"density": 10},
