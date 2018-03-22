@@ -4,32 +4,23 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Weft:
-    density: int
-
-
-@dataclass
-class Warp:
-    density: int
-
-
-@dataclass
-class Fibers:
+class Fiber:
     diameter: float
-    weft: Weft
-    warp: Warp
+    density: int
 
 
 @dataclass
 class Layer:
-    length: float
     width: float
+    weft: Fiber
+
+    length: float
+    warp: Fiber
 
 
 @dataclass
 class Config:
     resolution: int
-    fibers: Fibers
     layer: Layer
 
 
@@ -39,13 +30,16 @@ def parse(f: IO) -> Config:
 
     return Config(
         resolution=data['resolution'],
-        fibers=Fibers(
-            diameter=data['fibers']['diameter'],
-            weft=Weft(density=data['fibers']['weft']['density']),
-            warp=Warp(density=data['fibers']['warp']['density']),
-        ),
         layer=Layer(
             length=data['layer']['length'],
             width=data['layer']['width'],
+            weft=Fiber(
+                diameter=data['layer']['weft']['diameter'],
+                density=data['layer']['weft']['density']
+            ),
+            warp=Fiber(
+                diameter=data['layer']['warp']['diameter'],
+                density=data['layer']['warp']['density']
+            ),
         ),
     )

@@ -1,12 +1,16 @@
 {
   "resolution": 10,
-  "fibers": {
-    "diameter": 2,
-    "weft": {"density": 10},
-    "warp": {"density": 5}
-  },
   "layer": {
+    "width": 50,
+    "weft": {
+      "density": 10,
+      "diameter": 2
+    },
+
     "length": 50,
-    "width": 50
+    "warp": {
+      "density": 5,
+      "diameter": 2
+    }
   }
 }
