@@ -1,3 +1,9 @@
+import logging
+
+from mpl_toolkits.mplot3d import Axes3D
+Axes3D
+
+import matplotlib.pyplot as plt
 import numpy as np
 from dataclasses import dataclass
 
@@ -5,14 +11,32 @@ from . import config
 
 DIM = 3
 
+logging.basicConfig(
+    level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s'
+)
+
+LOGGER = logging.getLogger('mesher')
+LOGGER.setLevel(logging.INFO)
+
 
 @dataclass
 class Mesh:
     weft: np.ndarray
     warp: np.ndarray
 
+    def draw(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(self.weft.transpose()[0].flatten(), self.weft.transpose()[1].flatten(),
+                   self.weft.transpose()[2].flatten(), s=0.01)
+        ax.scatter(self.warp.transpose()[0].flatten(), self.warp.transpose()[1].flatten(),
+                   self.warp.transpose()[2].flatten(), s=0.01)
+        plt.show()
+
 
 def create_mesh(cfg: config.Config) -> Mesh:
+    LOGGER.info('start meshing...')
+
     n_warp_fibers = int(cfg.width * cfg.warp_density)
     n_points_for_warp_fiber = int(cfg.length * cfg.resolution)
 
@@ -32,5 +56,7 @@ def create_mesh(cfg: config.Config) -> Mesh:
     for i in range(n_weft_fibers):
         for j in range(n_points_for_weft_fiber):
             weft[i][j] = i * weft_fibers_diff + j * weft_points_diff
+
+    LOGGER.info('end meshing...')
 
     return Mesh(weft=weft, warp=warp)

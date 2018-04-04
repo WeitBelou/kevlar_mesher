@@ -9,7 +9,7 @@ def main():
     print(cfg)
 
     mesh = mesher.create_mesh(cfg)
-    print(mesh)
+    mesh.draw()
 
 
 if __name__ == '__main__':

@@ -8,10 +8,10 @@ diameter: 0.2
 width: 50
 
 # Линейная плотность утка в нитях на см
-weft_density: 10
+weft_density: 2
 
 # Длина ниток основы = длина куска
 length: 50 # В см
 
 # Линейная плотность основы в нитях на см
-warp_density: 5
+warp_density: 1

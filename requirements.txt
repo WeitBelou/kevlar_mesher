@@ -1,3 +1,4 @@
 dataclasses==0.4
 PyYaml==3.12
 numpy==1.14.2
+matplotlib==2.2.2
