@@ -27,10 +27,10 @@ class Mesh:
     def draw(self):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(self.weft.transpose()[0].flatten(), self.weft.transpose()[1].flatten(),
-                   self.weft.transpose()[2].flatten(), s=0.01)
-        ax.scatter(self.warp.transpose()[0].flatten(), self.warp.transpose()[1].flatten(),
-                   self.warp.transpose()[2].flatten(), s=0.01)
+        for f in self.weft:
+            ax.plot(f.transpose()[0], f.transpose()[1], f.transpose()[2], color='green')
+        for f in self.warp:
+            ax.plot(f.transpose()[0], f.transpose()[1], f.transpose()[2], color='red')
         plt.show()
 
 
