@@ -166,11 +166,10 @@ def create_weft(width: float, length: float, density: int, diameter: float, warp
                 z=math.sqrt(r ** 2 - (t - 2 * d) ** 2),
             )
         else:
-            return Point(
-                x=0,
-                y=t,
-                z=0,
-            )
+            n_periods = int(t / (2 * d))
+            p = fn(t - n_periods * 2 * d)
+
+            return p + Point(x=0, y=2 * d * n_periods, z=0)
 
     fibers_step = 1 / density
     n_fibers = int(density * width)
