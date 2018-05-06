@@ -1,17 +1,12 @@
-import json
+import itertools
 import logging
 import math
 from typing import List, Callable
 
-import matplotlib.pyplot as plt
-import numpy as np
+import vtk
 from dataclasses import dataclass
-from mpl_toolkits.mplot3d import Axes3D
 
 from . import config
-
-# Required
-Axes3D
 
 DIM = 3
 
@@ -37,13 +32,6 @@ class Point:
             self.z + other.z,
         )
 
-    def to_json(self):
-        return dict(
-            x=self.x,
-            y=self.y,
-            z=self.z,
-        )
-
 
 @dataclass
 class Fiber:
@@ -56,20 +44,10 @@ class Fiber:
 
         return Fiber(points=new_points)
 
-    def to_json(self):
-        return dict(
-            points=[p.to_json() for p in self.points]
-        )
-
 
 @dataclass
 class Layer:
     fibers: List[Fiber]
-
-    def to_json(self):
-        return dict(
-            fibers=[f.to_json() for f in self.fibers]
-        )
 
 
 @dataclass
@@ -78,37 +56,29 @@ class Mesh:
     warp: Layer
 
     def save(self):
-        with open('mesh.json', mode='w+') as f:
-            json.dump(self.to_json(), f)
+        grid = self.make_grid()
 
-    def plot(self):
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.set_zlim(-1, 1)
+        writer = vtk.vtkXMLDataSetWriter()
+        writer.SetFileName('mesh.vtu')
+        writer.SetInputData(grid)
+        writer.Write()
 
-        # weft
-        for f in self.weft.fibers:
-            xs = np.array([p.x for p in f.points])
-            ys = np.array([p.y for p in f.points])
-            zs = np.array([p.z for p in f.points])
+    def make_grid(self):
+        ug = vtk.vtkUnstructuredGrid()
+        all_points = vtk.vtkPoints()
+        ug.SetPoints(all_points)
 
-            ax.plot(xs=xs, ys=ys, zs=zs, c='b')
+        current_idx = 0
+        for fiber in itertools.chain(self.weft.fibers, self.warp.fibers):
+            polyline = vtk.vtkPolyLine()
+            for point in fiber.points:
+                all_points.InsertNextPoint(point.x, point.y, point.z)
+                polyline.GetPointIds().InsertNextId(current_idx)
+                current_idx += 1
 
-        # warp
-        for f in self.warp.fibers:
-            xs = np.array([p.x for p in f.points])
-            ys = np.array([p.y for p in f.points])
-            zs = np.array([p.z for p in f.points])
+            ug.InsertNextCell(polyline.GetCellType(), polyline.GetPointIds())
 
-            ax.plot(xs=xs, ys=ys, zs=zs, c='r')
-
-        plt.show()
-
-    def to_json(self):
-        return dict(
-            weft=self.weft.to_json(),
-            warp=self.warp.to_json(),
-        )
+        return ug
 
 
 def create_warp(width: float, length: float, density: int, resolution: float) -> Layer:
