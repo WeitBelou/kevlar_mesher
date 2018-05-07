@@ -1,21 +1,15 @@
 import itertools
-import logging
 import math
 from typing import List, Callable
 
 import vtk
 from dataclasses import dataclass
 
-from . import config
+from . import config, logger
 
 DIM = 3
 
-logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s'
-)
-
-LOGGER = logging.getLogger('mesher')
-LOGGER.setLevel(logging.INFO)
+_LOGGER = logger.get_logger()
 
 
 @dataclass
@@ -167,12 +161,12 @@ def create_fiber(fn: Callable[[float], Point], step: float, n_points: int) -> Fi
 
 
 def create_mesh(cfg: config.Config) -> Mesh:
-    LOGGER.info('start meshing...')
+    _LOGGER.info('start meshing...')
 
     warp = create_warp(width=cfg.width, length=cfg.length, density=cfg.warp_density, resolution=cfg.resolution)
     weft = create_weft(width=cfg.length, length=cfg.width, density=cfg.weft_density, warp_density=cfg.warp_density,
                        diameter=cfg.diameter, resolution=cfg.resolution)
 
-    LOGGER.info('end meshing...')
+    _LOGGER.info('end meshing...')
 
     return Mesh(weft=weft, warp=warp)
