@@ -1,5 +1,6 @@
 import itertools
 import math
+import pathlib
 from typing import List, Callable
 
 import vtk
@@ -49,11 +50,15 @@ class Mesh:
     weft: Layer
     warp: Layer
 
-    def save(self):
+    def save(self, out_dir: str, name: str):
+        out = pathlib.Path(out_dir)
+        out.mkdir(exist_ok=True)
+        out /= pathlib.Path(f'{name}.vtu')
+
         grid = self.make_grid()
 
         writer = vtk.vtkXMLDataSetWriter()
-        writer.SetFileName('mesh.vtu')
+        writer.SetFileName(str(out.absolute()))
         writer.SetInputData(grid)
         writer.Write()
 
@@ -160,12 +165,12 @@ def create_fiber(fn: Callable[[float], Point], step: float, n_points: int) -> Fi
     return Fiber(points=points)
 
 
-def create_mesh(cfg: config.Config) -> Mesh:
+def create_mesh(task: config.Task) -> Mesh:
     _LOGGER.info('start meshing...')
 
-    warp = create_warp(width=cfg.width, length=cfg.length, density=cfg.warp_density, resolution=cfg.resolution)
-    weft = create_weft(width=cfg.length, length=cfg.width, density=cfg.weft_density, warp_density=cfg.warp_density,
-                       diameter=cfg.diameter, resolution=cfg.resolution)
+    warp = create_warp(width=task.width, length=task.length, density=task.warp_density, resolution=task.resolution)
+    weft = create_weft(width=task.length, length=task.width, density=task.weft_density, warp_density=task.warp_density,
+                       diameter=task.diameter, resolution=task.resolution)
 
     _LOGGER.info('end meshing...')
 

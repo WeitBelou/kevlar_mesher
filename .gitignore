@@ -2,5 +2,5 @@
 .idea
 *.iml
 
-# VTK files
-*.vt[u,k]
+# Out
+out/

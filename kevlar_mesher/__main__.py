@@ -13,9 +13,11 @@ def main():
     cfg = config.parse(cmd_args.config)
     _LOGGER.info(f'Config: {yaml.dump(cfg)}')
 
-    mesh = mesher.create_mesh(cfg)
-    _LOGGER.info('Mesh created')
-    mesh.save()
+    for n, task in enumerate(cfg.tasks):
+        _LOGGER.info(f'Processing task #{n}: {task.name}')
+        mesh = mesher.create_mesh(task)
+        _LOGGER.info('Mesh created')
+        mesh.save(cfg.out_dir, task.name)
 
 
 if __name__ == '__main__':

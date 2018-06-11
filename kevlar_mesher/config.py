@@ -1,10 +1,12 @@
-from typing import IO
+from typing import IO, List
 
 from dataclasses import dataclass
 
 
 @dataclass
-class Config:
+class Task:
+    name: str
+
     resolution: int
     diameter: float
 
@@ -15,17 +17,28 @@ class Config:
     warp_density: int
 
 
+@dataclass
+class Config:
+    out_dir: str
+    tasks: List[Task]
+
+
 def parse(f: IO) -> Config:
     import yaml
     data = yaml.load(f)
 
-    return Config(
-        resolution=data['resolution'],
-        diameter=data['diameter'],
+    tasks = [
+        Task(
+            name=task['name'],
+            resolution=task['resolution'],
+            diameter=task['diameter'],
 
-        width=data['width'],
-        weft_density=data['weft_density'],
+            width=task['width'],
+            weft_density=task['weft_density'],
 
-        length=data['length'],
-        warp_density=data['warp_density'],
-    )
+            length=task['length'],
+            warp_density=task['warp_density'],
+        ) for task in data['tasks']
+    ]
+
+    return Config(tasks=tasks, out_dir=data['out_dir'])
