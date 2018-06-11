@@ -20,3 +20,15 @@ tasks:
     weft_density: 1
     length: 50
     warp_density: 0.5
+
+{% for weft_density in [0.5, 1, 2, 5] %}
+  {% for warp_density in [0.5, 1, 2, 5] %}
+  - name: "weft_{{ weft_density }}_warp_{{ warp_density }}"
+    resolution: 100
+    diameter: 0.5
+    width: 20
+    weft_density: !!float "{{ weft_density }}"
+    length: 20
+    warp_density: !!float "{{ warp_density }}"
+  {% endfor %}
+{% endfor %}

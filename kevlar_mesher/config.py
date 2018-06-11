@@ -24,8 +24,10 @@ class Config:
 
 
 def parse(f: IO) -> Config:
-    import yaml
-    data = yaml.load(f)
+    import yaml, jinja2
+    templated_data = jinja2.Template(f.read()).render()
+
+    data = yaml.load(templated_data)
 
     tasks = [
         Task(
