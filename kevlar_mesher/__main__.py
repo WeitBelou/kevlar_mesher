@@ -14,7 +14,7 @@ def main():
     _LOGGER.info(f'Config: {yaml.dump(cfg)}')
 
     for n, task in enumerate(cfg.tasks):
-        _LOGGER.info(f'Processing task #{n}: {task.name}')
+        _LOGGER.info(f'Processing task #{n+1}: {task.name}')
         mesh = mesher.create_mesh(task)
         _LOGGER.info('Mesh created')
         mesh.save(cfg.out_dir, task.name)
