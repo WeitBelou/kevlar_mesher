@@ -27,17 +27,17 @@ class Config:
 def _get_schema():
     from voluptuous import Schema, Required, Range, Any
 
-    positive = Range(min=0, min_included=False)
+    positive_number = All(Any(int, float), Range(min=0, min_included=False))
     return Schema({
         Required('out_dir'): All(str, Length(min=1)),
         Required('tasks'): [Schema({
             Required('name'): All(str, Length(min=1)),
-            Required('resolution'): All(Any(int, float), positive),
-            Required('diameter'): All(Any(int, float), positive),
-            Required('width'): All(Any(int, float), positive),
-            Required('weft_density'): All(Any(int, float), positive),
-            Required('length'): All(Any(int, float), positive),
-            Required('warp_density'): All(Any(int, float), positive),
+            Required('resolution'): positive_number,
+            Required('diameter'): positive_number,
+            Required('width'): positive_number,
+            Required('weft_density'): positive_number,
+            Required('length'): positive_number,
+            Required('warp_density'): positive_number,
         })]
     })
 
