@@ -3,3 +3,4 @@ numpy
 vtk
 dataclasses
 jinja2
+voluptuous

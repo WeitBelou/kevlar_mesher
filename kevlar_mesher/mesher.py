@@ -80,7 +80,7 @@ class Mesh:
         return ug
 
 
-def create_warp(width: float, length: float, density: int, resolution: float) -> Layer:
+def create_warp(width: float, length: float, density: float, resolution: float) -> Layer:
     def fn(t: float) -> Point:
         return Point(x=t, y=0, z=0)
 
@@ -98,7 +98,7 @@ def create_warp(width: float, length: float, density: int, resolution: float) ->
     return Layer(fibers=fibers)
 
 
-def create_weft(width: float, length: float, density: int, diameter: float, warp_density: float,
+def create_weft(width: float, length: float, density: float, diameter: float, warp_density: float,
                 resolution: float) -> Layer:
     def fn(t: float) -> Point:
         r = diameter / 2

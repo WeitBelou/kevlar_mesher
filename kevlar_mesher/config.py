@@ -1,20 +1,21 @@
 from typing import IO, List
 
 from dataclasses import dataclass
+from voluptuous import All, Length
 
 
 @dataclass
 class Task:
     name: str
 
-    resolution: int
+    resolution: float
     diameter: float
 
     width: float
-    weft_density: int
+    weft_density: float
 
     length: float
-    warp_density: int
+    warp_density: float
 
 
 @dataclass
@@ -23,13 +24,38 @@ class Config:
     tasks: List[Task]
 
 
+def _get_schema():
+    from voluptuous import Schema, Required, Range, Any
+
+    positive = Range(min=0, min_included=False)
+    return Schema({
+        Required('out_dir'): All(str, Length(min=1)),
+        Required('tasks'): [Schema({
+            Required('name'): All(str, Length(min=1)),
+            Required('resolution'): All(Any(int, float), positive),
+            Required('diameter'): All(Any(int, float), positive),
+            Required('width'): All(Any(int, float), positive),
+            Required('weft_density'): All(Any(int, float), positive),
+            Required('length'): All(Any(int, float), positive),
+            Required('warp_density'): All(Any(int, float), positive),
+        })]
+    })
+
+
+_schema = _get_schema()
+
+
 def parse(f: IO) -> Config:
-    import yaml, jinja2
+    import yaml
+    import jinja2
+
     templated_data = jinja2.Template(f.read()).render()
 
     data = yaml.load(templated_data)
 
-    tasks = [
+    _schema(data)
+
+    return Config(tasks=[
         Task(
             name=task['name'],
             resolution=task['resolution'],
@@ -41,6 +67,4 @@ def parse(f: IO) -> Config:
             length=task['length'],
             warp_density=task['warp_density'],
         ) for task in data['tasks']
-    ]
-
-    return Config(tasks=tasks, out_dir=data['out_dir'])
+    ], out_dir=data['out_dir'])
