@@ -86,7 +86,7 @@ def create_warp(task: config.Task) -> Layer:
     fibers_step = 1 / task.warp_density
     n_fibers = int(task.warp_density * task.width)
     points_step = 1 / task.resolution
-    root_fiber = create_fiber(fn, points_step, task.length)
+    root_fiber = create_parametrized_line(fn, points_step, task.length)
 
     fibers = [root_fiber]
     dp = Point(x=0, y=fibers_step, z=0)
@@ -140,8 +140,8 @@ def create_weft(task: config.Task) -> Layer:
     fibers_step = 1 / task.weft_density
     n_fibers = int(task.weft_density * task.length)
     points_step = 1 / task.resolution
-    root_fiber = create_fiber(fn, points_step, task.width)
 
+    root_fiber = create_parametrized_line(fn, points_step, task.width)
     fibers = [root_fiber]
     dp = Point(x=fibers_step, y=0, z=0)
     for i in range(n_fibers):
@@ -150,18 +150,21 @@ def create_weft(task: config.Task) -> Layer:
     return Layer(fibers=fibers)
 
 
-def create_fiber(fn: Callable[[float], Point], step: float, end: float) -> Fiber:
+def create_parametrized_line(fn: Callable[[float], Point], step: float, end: float) -> Fiber:
+    t_arr = np.arange(start=0, stop=end, step=step)
+
     return Fiber(points=[
-        fn(t) for t in np.arange(start=0, stop=end, step=step)
+        fn(t) for t in t_arr
     ])
 
 
 def create_mesh(task: config.Task) -> Mesh:
-    _LOGGER.info('start meshing...')
+    _LOGGER.info('meshing warp...')
+    warp = create_warp(task)
+    _LOGGER.info('finish meshing warp...')
 
-    _LOGGER.info('end meshing...')
+    _LOGGER.info('meshing weft...')
+    weft = create_weft(task)
+    _LOGGER.info('finish meshing weft...')
 
-    return Mesh(
-        weft=create_weft(task),
-        warp=create_warp(task),
-    )
+    return Mesh(weft=weft, warp=warp)
