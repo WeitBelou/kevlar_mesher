@@ -90,7 +90,7 @@ def create_warp(task: config.Task) -> Layer:
 
     fibers = [root_fiber]
     dp = Point(x=0, y=fibers_step, z=0)
-    for i in range(n_fibers - 1):
+    for i in range(n_fibers):
         fibers.append(fibers[-1].shift(dp=dp))
 
     return Layer(fibers=fibers)
@@ -144,7 +144,7 @@ def create_weft(task: config.Task) -> Layer:
 
     fibers = [root_fiber]
     dp = Point(x=fibers_step, y=0, z=0)
-    for i in range(n_fibers - 1):
+    for i in range(n_fibers):
         fibers.append(fibers[-1].shift(dp=dp))
 
     return Layer(fibers=fibers)
