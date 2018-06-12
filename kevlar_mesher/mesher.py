@@ -3,6 +3,7 @@ import math
 import pathlib
 from typing import List, Callable
 
+import numpy as np
 import vtk
 from dataclasses import dataclass
 
@@ -85,8 +86,7 @@ def create_warp(task: config.Task) -> Layer:
     fibers_step = 1 / task.warp_density
     n_fibers = int(task.warp_density * task.width)
     points_step = 1 / task.resolution
-    n_points = int(task.length / points_step)
-    root_fiber = create_fiber(fn, points_step, n_points)
+    root_fiber = create_fiber(fn, points_step, task.length)
 
     fibers = [root_fiber]
     dp = Point(x=0, y=fibers_step, z=0)
@@ -140,8 +140,7 @@ def create_weft(task: config.Task) -> Layer:
     fibers_step = 1 / task.weft_density
     n_fibers = int(task.weft_density * task.length)
     points_step = 1 / task.resolution
-    n_points = int(task.width / points_step)
-    root_fiber = create_fiber(fn, points_step, n_points)
+    root_fiber = create_fiber(fn, points_step, task.width)
 
     fibers = [root_fiber]
     dp = Point(x=fibers_step, y=0, z=0)
@@ -151,15 +150,10 @@ def create_weft(task: config.Task) -> Layer:
     return Layer(fibers=fibers)
 
 
-def create_fiber(fn: Callable[[float], Point], step: float, n_points: int) -> Fiber:
-    points = []
-
-    t = 0
-    for i in range(n_points):
-        points.append(fn(t))
-        t += step
-
-    return Fiber(points=points)
+def create_fiber(fn: Callable[[float], Point], step: float, end: float) -> Fiber:
+    return Fiber(points=[
+        fn(t) for t in np.arange(start=0, stop=end, step=step)
+    ])
 
 
 def create_mesh(task: config.Task) -> Mesh:
