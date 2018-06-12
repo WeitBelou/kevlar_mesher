@@ -33,11 +33,9 @@ class Fiber:
     points: List[Point]
 
     def shift(self, dp: Point) -> 'Fiber':
-        new_points = list()
-        for p in self.points:
-            new_points.append(p + dp)
-
-        return Fiber(points=new_points)
+        return Fiber(points=[
+            p + dp for p in self.points
+        ])
 
 
 @dataclass
@@ -80,14 +78,14 @@ class Mesh:
         return ug
 
 
-def create_warp(width: float, length: float, density: float, resolution: float) -> Layer:
+def create_warp(task: config.Task) -> Layer:
     def fn(t: float) -> Point:
         return Point(x=t, y=0, z=0)
 
-    fibers_step = 1 / density
-    n_fibers = int(density * width)
-    points_step = 1 / resolution
-    n_points = int(length / points_step)
+    fibers_step = 1 / task.warp_density
+    n_fibers = int(task.warp_density * task.width)
+    points_step = 1 / task.resolution
+    n_points = int(task.length / points_step)
     root_fiber = create_fiber(fn, points_step, n_points)
 
     fibers = [root_fiber]
@@ -98,11 +96,10 @@ def create_warp(width: float, length: float, density: float, resolution: float) 
     return Layer(fibers=fibers)
 
 
-def create_weft(width: float, length: float, density: float, diameter: float, warp_density: float,
-                resolution: float) -> Layer:
+def create_weft(task: config.Task) -> Layer:
     def fn(t: float) -> Point:
-        r = diameter / 2
-        d = 1 / warp_density
+        r = task.diameter / 2
+        d = 1 / task.warp_density
 
         if t < r:
             return Point(
@@ -140,10 +137,10 @@ def create_weft(width: float, length: float, density: float, diameter: float, wa
 
             return p + Point(x=0, y=2 * d * n_periods, z=0)
 
-    fibers_step = 1 / density
-    n_fibers = int(density * width)
-    points_step = 1 / resolution
-    n_points = int(length / points_step)
+    fibers_step = 1 / task.weft_density
+    n_fibers = int(task.weft_density * task.length)
+    points_step = 1 / task.resolution
+    n_points = int(task.width / points_step)
     root_fiber = create_fiber(fn, points_step, n_points)
 
     fibers = [root_fiber]
@@ -168,10 +165,9 @@ def create_fiber(fn: Callable[[float], Point], step: float, n_points: int) -> Fi
 def create_mesh(task: config.Task) -> Mesh:
     _LOGGER.info('start meshing...')
 
-    warp = create_warp(width=task.width, length=task.length, density=task.warp_density, resolution=task.resolution)
-    weft = create_weft(width=task.length, length=task.width, density=task.weft_density, warp_density=task.warp_density,
-                       diameter=task.diameter, resolution=task.resolution)
-
     _LOGGER.info('end meshing...')
 
-    return Mesh(weft=weft, warp=warp)
+    return Mesh(
+        weft=create_weft(task),
+        warp=create_warp(task),
+    )
