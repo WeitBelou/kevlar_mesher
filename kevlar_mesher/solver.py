@@ -9,3 +9,4 @@ libsolver = ctypes.CDLL('/usr/lib/libsolver.so')
 
 def solve():
     _LOGGER.info(f'dll: {libsolver}')
+    libsolver.hello()
