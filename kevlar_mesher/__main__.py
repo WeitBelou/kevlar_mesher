@@ -4,6 +4,7 @@ from . import args
 from . import config
 from . import logger
 from . import mesher
+from . import solver
 
 _LOGGER = logger.get_logger()
 
@@ -20,6 +21,9 @@ def main():
         mesh = mesher.create_mesh(task)
         _LOGGER.info('Mesh created')
         mesh.save(cfg.out_dir, task.name)
+
+        _LOGGER.info('Solving')
+        solver.solve()
 
 
 if __name__ == '__main__':
