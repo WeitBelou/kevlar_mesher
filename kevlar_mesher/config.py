@@ -3,6 +3,10 @@ from typing import IO, List
 from dataclasses import dataclass
 from voluptuous import All, Length
 
+from . import logger
+
+_LOGGER = logger.get_logger()
+
 
 @dataclass
 class Task:
@@ -49,7 +53,8 @@ def parse(f: IO) -> Config:
     import yaml
     import jinja2
 
-    templated_data = jinja2.Template(f.read()).render()
+    raw_data = f.read()
+    templated_data = jinja2.Template(raw_data).render()
 
     data = yaml.load(templated_data)
 

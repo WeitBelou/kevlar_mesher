@@ -13,4 +13,4 @@ fix_permissions() {
 }
 trap fix_permissions INT TERM EXIT
 
-python -m kevlar_mesher -c config.yaml
+python3 -m kevlar_mesher -c config.yaml

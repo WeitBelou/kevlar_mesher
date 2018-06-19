@@ -10,6 +10,8 @@ _LOGGER = logger.get_logger()
 
 def main():
     cmd_args = args.CommandLineArgs()
+    _LOGGER.info(f'Args: {cmd_args}')
+
     cfg = config.parse(cmd_args.config)
     _LOGGER.info(f'Config: {yaml.dump(cfg)}')
 

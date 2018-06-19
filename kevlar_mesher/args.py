@@ -20,7 +20,7 @@ class CommandLineArgs:
         )
 
         parser.add_argument(
-            '-c', '--config', dest='config', type=argparse.FileType('r'),
+            '-c', '--config', dest='config', type=argparse.FileType('r', encoding='utf-8'),
             required=True, help='Path to config file.'
         )
 
