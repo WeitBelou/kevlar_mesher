@@ -1,7 +1,7 @@
 import itertools
 import math
 import pathlib
-from typing import List, Callable
+from typing import List, Callable, Iterable
 
 import numpy as np
 import vtk
@@ -31,7 +31,7 @@ class Point:
 
 @dataclass
 class Fiber:
-    points: List[Point]
+    points: Iterable[Point]
 
     def shift(self, dp: Point) -> 'Fiber':
         return Fiber(points=[
@@ -86,7 +86,7 @@ def create_warp(task: config.Task) -> Layer:
     fibers_step = 1 / task.warp_density
     n_fibers = int(task.warp_density * task.width)
     points_step = 1 / task.resolution
-    root_fiber = create_parametrized_line(fn, points_step, task.length)
+    root_fiber = create_parametrized_line(fn, 0, task.length, points_step)
 
     fibers = [root_fiber]
     dp = Point(x=0, y=fibers_step, z=0)
@@ -141,7 +141,7 @@ def create_weft(task: config.Task) -> Layer:
     n_fibers = int(task.weft_density * task.length)
     points_step = 1 / task.resolution
 
-    root_fiber = create_parametrized_line(fn, points_step, task.width)
+    root_fiber = create_parametrized_line(fn, 0, task.width, points_step)
     fibers = [root_fiber]
     dp = Point(x=fibers_step, y=0, z=0)
     for i in range(n_fibers):
@@ -150,12 +150,10 @@ def create_weft(task: config.Task) -> Layer:
     return Layer(fibers=fibers)
 
 
-def create_parametrized_line(fn: Callable[[float], Point], step: float, end: float) -> Fiber:
-    t_arr = np.arange(start=0, stop=end, step=step)
+def create_parametrized_line(fn: Callable[[float], Point], start: float, end: float, step: float) -> Fiber:
+    t_arr = np.arange(start=start, stop=end, step=step)
 
-    return Fiber(points=[
-        fn(t) for t in t_arr
-    ])
+    return Fiber(points=[*map(fn, t_arr)])
 
 
 def create_mesh(task: config.Task) -> Mesh:
