@@ -23,7 +23,10 @@ def main():
         mesh.save(cfg.out_dir, task.name)
 
         _LOGGER.info('Solving')
-        solver.solve()
+        results = solver.solve(mesh, 0.1, 10)
+        for (idx, res) in enumerate(results):
+            res.save(cfg.out_dir, f'{task.name}-{idx}')
+        _LOGGER.info('Solved')
 
 
 if __name__ == '__main__':
