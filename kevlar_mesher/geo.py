@@ -1,6 +1,6 @@
 import itertools
 import pathlib
-from typing import Iterable, List
+from typing import List
 
 import vtk
 from dataclasses import dataclass
@@ -39,6 +39,7 @@ class Point:
     def dist(self, other: 'Point') -> float:
         assert isinstance(other, Point)
         return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.z) ** 2) ** 0.5
+
 
 @dataclass
 class Fiber:
