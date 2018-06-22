@@ -2,12 +2,16 @@
 # и директорию, для записи результатов (out_dir)
 # Каждый task имеет вид
 # name: simple # название таска, результат будет иметь вид: ${name}.vtu
-#  resolution: 100 # Разрешение нитей, точек/см
-#  diameter: 0.5 # толщина нити, см
-#  width: 20 # Ширина куска = длина ниток утка
-#  weft_density: 1 # Плотность ниток утка, нитей / см
-#  length: 50 # Длина куска = длина ниток основы
-#  warp_density: 0.5 # Плотность ниток основы, нитей / см
+# mesh:
+#   resolution: 100 # Разрешение нитей, точек/см
+#   diameter: 0.5 # толщина нити, см
+#   width: 20 # Ширина куска = длина ниток утка
+#   weft_density: 1 # Плотность ниток утка, нитей / см
+#   length: 50 # Длина куска = длина ниток основы
+#   warp_density: 0.5 # Плотность ниток основы, нитей / см
+# solver:
+#    n_steps: 250 # Число шагов
+#    step: 0.1 # размер шага
 #
 # NOTE: Конфиг поддерживает шаблоны jinja2
 ---
@@ -15,12 +19,16 @@ out_dir: out
 
 tasks:
   - name: simple
-    resolution: 1
-    diameter: 0.001
-    width: 100
-    weft_density: 1
-    length: 100
-    warp_density: 1
+    mesh:
+      resolution: 1
+      diameter: 0.001
+      width: 100
+      weft_density: 1
+      length: 100
+      warp_density: 1
+    solver:
+      step: 0.1
+      n_steps: 250
 
 {#{% for weft_density in [0.5, 1, 2, 5] %}#}
 {#  {% for warp_density in [0.5, 1, 2, 5] %}#}

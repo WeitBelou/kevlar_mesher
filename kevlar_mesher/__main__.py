@@ -19,12 +19,12 @@ def main():
 
     for n, task in enumerate(cfg.tasks):
         _LOGGER.info(f'Processing task #{n+1}: {task.name}')
-        mesh = mesher.create_mesh(task)
+        mesh = mesher.create_mesh(task.mesh)
         _LOGGER.info('Mesh created')
         writer.save(mesh, cfg.out_dir, task.name)
 
         _LOGGER.info('Solving')
-        results_generator = solver.solve(mesh, 0.1, 1000)
+        results_generator = solver.solve(mesh, task.solver)
         for (idx, res) in enumerate(results_generator):
             writer.save(res, cfg.out_dir, f'{task.name}-{idx}')
         _LOGGER.info('Solved')

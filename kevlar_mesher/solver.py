@@ -1,6 +1,7 @@
 import math
 from typing import Generator
 
+from . import config
 from . import geo
 from . import logger
 
@@ -66,23 +67,23 @@ def step_fiber(fiber: geo.Fiber, initial_fiber_state: geo.Fiber, step: float) ->
     return geo.Fiber(new_points)
 
 
-def solve(initial_mesh: geo.Mesh, step: float, n_steps: int) -> Generator[None, geo.Mesh, None]:
+def solve(initial_mesh: geo.Mesh, cfg: config.Solver) -> Generator[None, geo.Mesh, None]:
     previous_mesh = initial_mesh
 
-    for i in range(n_steps):
+    for i in range(cfg.n_steps):
         new_weft_fibers = []
         for idx, fiber in enumerate(previous_mesh.weft.fibers):
             initial_fiber_state = initial_mesh.weft.fibers[idx]
-            new_weft_fibers.append(step_fiber(fiber, initial_fiber_state, step))
+            new_weft_fibers.append(step_fiber(fiber, initial_fiber_state, cfg.step))
 
         new_warp_fibers = []
         for idx, fiber in enumerate(previous_mesh.warp.fibers):
             initial_fiber_state = initial_mesh.warp.fibers[idx]
-            new_warp_fibers.append(step_fiber(fiber, initial_fiber_state, step))
+            new_warp_fibers.append(step_fiber(fiber, initial_fiber_state, cfg.step))
 
         previous_mesh = geo.Mesh(
             warp=geo.Layer(new_warp_fibers),
             weft=geo.Layer(new_weft_fibers),
         )
-        _LOGGER.info('Done step %d of %d' % (i + 1, n_steps))
+        _LOGGER.info(f'Done step {i + 1:d} of {cfg.n_steps:d}')
         yield previous_mesh

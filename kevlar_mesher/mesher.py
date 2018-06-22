@@ -9,7 +9,7 @@ from . import geo
 _LOGGER = logger.get_logger()
 
 
-def create_warp(task: config.Task) -> geo.Layer:
+def create_warp(task: config.Mesh) -> geo.Layer:
     def fn(t: float) -> geo.Point:
         return geo.Point(x=t, y=0, z=0)
 
@@ -26,7 +26,7 @@ def create_warp(task: config.Task) -> geo.Layer:
     return geo.Layer(fibers=fibers)
 
 
-def create_weft(task: config.Task) -> geo.Layer:
+def create_weft(task: config.Mesh) -> geo.Layer:
     def fn(t: float) -> geo.Point:
         r = task.diameter / 2
         d = 1 / task.warp_density
@@ -86,7 +86,7 @@ def create_parametrized_line(fn: Callable[[float], geo.Point], start: float, end
     return geo.Fiber(points=[*map(fn, t_arr)])
 
 
-def create_mesh(task: config.Task) -> geo.Mesh:
+def create_mesh(task: config.Mesh) -> geo.Mesh:
     _LOGGER.info('meshing warp...')
     warp = create_warp(task)
     _LOGGER.info('finish meshing warp...')
