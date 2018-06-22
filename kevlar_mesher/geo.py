@@ -1,5 +1,4 @@
 import itertools
-import pathlib
 from typing import List
 
 import vtk
@@ -61,19 +60,7 @@ class Mesh:
     weft: Layer
     warp: Layer
 
-    def save(self, out_dir: str, name: str):
-        out = pathlib.Path(out_dir)
-        out.mkdir(exist_ok=True)
-        out /= pathlib.Path(f'{name}.vtu')
-
-        grid = self.make_grid()
-
-        writer = vtk.vtkXMLDataSetWriter()
-        writer.SetFileName(str(out.absolute()))
-        writer.SetInputData(grid)
-        writer.Write()
-
-    def make_grid(self):
+    def make_vtu_grid(self):
         ug = vtk.vtkUnstructuredGrid()
         all_points = vtk.vtkPoints()
         ug.SetPoints(all_points)

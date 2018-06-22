@@ -1,5 +1,5 @@
 import math
-from typing import Iterable
+from typing import Generator
 
 from . import geo
 from . import logger
@@ -66,23 +66,23 @@ def step_fiber(fiber: geo.Fiber, initial_fiber_state: geo.Fiber, step: float) ->
     return geo.Fiber(new_points)
 
 
-def solve(initial_mesh: geo.Mesh, step: float, n_steps: int) -> Iterable[geo.Mesh]:
-    meshes = [initial_mesh]
+def solve(initial_mesh: geo.Mesh, step: float, n_steps: int) -> Generator[None, geo.Mesh, None]:
+    previous_mesh = initial_mesh
+
     for i in range(n_steps):
         new_weft_fibers = []
-        for idx, fiber in enumerate(meshes[-1].weft.fibers):
-            initial_fiber_state = meshes[0].weft.fibers[idx]
+        for idx, fiber in enumerate(previous_mesh.weft.fibers):
+            initial_fiber_state = initial_mesh.weft.fibers[idx]
             new_weft_fibers.append(step_fiber(fiber, initial_fiber_state, step))
 
         new_warp_fibers = []
-        for idx, fiber in enumerate(meshes[-1].warp.fibers):
-            initial_fiber_state = meshes[0].warp.fibers[idx]
+        for idx, fiber in enumerate(previous_mesh.warp.fibers):
+            initial_fiber_state = initial_mesh.warp.fibers[idx]
             new_warp_fibers.append(step_fiber(fiber, initial_fiber_state, step))
 
-        meshes.append(geo.Mesh(
+        previous_mesh = geo.Mesh(
             warp=geo.Layer(new_warp_fibers),
             weft=geo.Layer(new_weft_fibers),
-        ))
+        )
         _LOGGER.info('Done step %d of %d' % (i + 1, n_steps))
-
-    return meshes
+        yield previous_mesh
