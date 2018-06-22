@@ -11,6 +11,15 @@ class Point:
     x: float
     y: float
     z: float
+    vx: float
+    vy: float
+    vz: float
+
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.vx = self.vy = self.vz = 0
 
     def __add__(self, other: 'Point') -> 'Point':
         assert isinstance(other, Point)
@@ -20,10 +29,20 @@ class Point:
             self.z + other.z,
         )
 
+    def __mul__(self, c: 'float') -> 'Point':
+        return Point(
+            self.x * c,
+            self.y * c,
+            self.z * c,
+        )
+
+    def dist(self, other: 'Point') -> float:
+        assert isinstance(other, Point)
+        return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.z) ** 2) ** 0.5
 
 @dataclass
 class Fiber:
-    points: Iterable[Point]
+    points: List[Point]
 
     def shift(self, dp: Point) -> 'Fiber':
         return Fiber(points=[

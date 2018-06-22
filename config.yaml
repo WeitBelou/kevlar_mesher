@@ -15,12 +15,12 @@ out_dir: out
 
 tasks:
   - name: simple
-    resolution: 100
-    diameter: 0.5
-    width: 20
+    resolution: 1
+    diameter: 0.001
+    width: 100
     weft_density: 1
-    length: 50
-    warp_density: 0.5
+    length: 100
+    warp_density: 1
 
 {#{% for weft_density in [0.5, 1, 2, 5] %}#}
 {#  {% for warp_density in [0.5, 1, 2, 5] %}#}
