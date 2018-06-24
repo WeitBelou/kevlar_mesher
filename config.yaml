@@ -35,7 +35,7 @@ tasks:
       warp_density: 1
     solver:
       step: 0.1
-      n_steps: 250
+      n_steps: 1000
       pulse:
         radius: 5
         amplitude: 1
