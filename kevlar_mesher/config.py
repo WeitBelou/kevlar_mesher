@@ -3,6 +3,7 @@ from typing import IO, List
 from dataclasses import dataclass
 from voluptuous import All, Length
 
+from . import geo
 from . import logger
 
 _LOGGER = logger.get_logger()
@@ -21,9 +22,17 @@ class Mesh:
 
 
 @dataclass
+class Pulse:
+    radius: float
+    amplitude: float
+    center: geo.Point
+
+
+@dataclass
 class Solver:
     step: float
     n_steps: int
+    pulse: Pulse
 
 
 @dataclass
@@ -43,6 +52,7 @@ def _get_schema():
     from voluptuous import Schema, Required, Range, Any
 
     positive_number = All(Any(int, float), Range(min=0, min_included=False))
+    number = Any(int, float)
     return Schema({
         Required('out_dir'): All(str, Length(min=1)),
         Required('tasks'): [Schema({
@@ -58,6 +68,15 @@ def _get_schema():
             Required('solver'): Schema({
                 Required('step'): positive_number,
                 Required('n_steps'): All(int, Range(min=0, min_included=False, max=10000)),
+                Required('pulse'): Schema({
+                    Required('radius'): positive_number,
+                    Required('amplitude'): positive_number,
+                    Required('center'): Schema({
+                        Required('x'): number,
+                        Required('y'): number,
+                        Required('z'): number,
+                    })
+                })
             })
         })]
     })
@@ -90,6 +109,15 @@ def parse(f: IO) -> Config:
             solver=Solver(
                 step=task['solver']['step'],
                 n_steps=task['solver']['n_steps'],
+                pulse=Pulse(
+                    radius=task['solver']['pulse']['radius'],
+                    amplitude=task['solver']['pulse']['amplitude'],
+                    center=geo.Point(
+                        x=task['solver']['pulse']['center']['x'],
+                        y=task['solver']['pulse']['center']['y'],
+                        z=task['solver']['pulse']['center']['z'],
+                    ),
+                ),
             ),
         ) for task in data['tasks']
     ], out_dir=data['out_dir'])

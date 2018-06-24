@@ -29,16 +29,23 @@ tasks:
     solver:
       step: 0.1
       n_steps: 250
-  {% for step in [0.1, 0.05, 0.02] %}
-  - name: "step-{{ step }}"
-    mesh:
-      resolution: 1
-      diameter: 0.001
-      width: 100
-      weft_density: 1
-      length: 100
-      warp_density: 1
-    solver:
-      step: !!float "{{ step }}"
-      n_steps: !!int "{{ (25/step)|round|int }}"
-  {% endfor %}
+      pulse:
+        radius: 5
+        amplitude: 1
+        center:
+          x: 50
+          y: 50
+          z: 0
+{#  {% for step in [0.1, 0.05, 0.02] %}#}
+{#  - name: "step-{{ step }}"#}
+{#    mesh:#}
+{#      resolution: 1#}
+{#      diameter: 0.001#}
+{#      width: 100#}
+{#      weft_density: 1#}
+{#      length: 100#}
+{#      warp_density: 1#}
+{#    solver:#}
+{#      step: !!float "{{ step }}"#}
+{#      n_steps: !!int "{{ (25/step)|round|int }}"#}
+{#  {% endfor %}#}

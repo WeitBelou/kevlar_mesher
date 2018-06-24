@@ -8,20 +8,19 @@ from . import logger
 _LOGGER = logger.get_logger()
 
 
-def get_force(point: geo.Point) -> geo.Point:
-    pulse_radius = 5  # in XY projection
-    pulse_center = geo.Point(50, 50, point.z)  # pulse in XY projection, so use point.z as an ugly hack
-    pulse_amplitude = 1  # in parrots (or monkeys, or elephants - whatever you prefer)
+def get_force(cfg: config.Pulse, point: geo.Point) -> geo.Point:
+    pulse_center = cfg.center
+    pulse_center.z = point.z  # pulse in XY projection, so use point.z as an ugly hack
 
     r = point.dist(pulse_center)
-    if r <= pulse_radius:
-        phase = (math.pi / 2) * (r / pulse_radius)
-        return geo.Point(0.0, 0.0, pulse_amplitude * math.cos(phase) ** 2)
+    if r <= cfg.radius:
+        phase = (math.pi / 2) * (r / cfg.radius)
+        return geo.Point(0.0, 0.0, cfg.amplitude * math.cos(phase) ** 2)
     else:
         return geo.Point(0.0, 0.0, 0.0)
 
 
-def step_fiber(fiber: geo.Fiber, initial_fiber_state: geo.Fiber, step: float) -> geo.Fiber:
+def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fiber) -> geo.Fiber:
     new_points = []
     for idx, point in enumerate(fiber.points):
         # Do not touch edge points for the moment, they are quite complicated
@@ -56,12 +55,11 @@ def step_fiber(fiber: geo.Fiber, initial_fiber_state: geo.Fiber, step: float) ->
         Tz = left_force_modulus * math.sin(phi_left) + right_force_modulus * math.sin(phi_right)
         Tplane = - left_force_modulus * math.cos(phi_left) + right_force_modulus * math.cos(phi_right)
 
-        ext_force = get_force(point)
-
+        ext_force = get_force(cfg.pulse, point)
         force = geo.Point(ext_force.x, ext_force.y, ext_force.z + Tz)
 
         new_points.append(
-            point + force * step
+            point + force * cfg.step
         )
 
     return geo.Fiber(new_points)
@@ -74,12 +72,12 @@ def solve(initial_mesh: geo.Mesh, cfg: config.Solver) -> Generator[None, geo.Mes
         new_weft_fibers = []
         for idx, fiber in enumerate(previous_mesh.weft.fibers):
             initial_fiber_state = initial_mesh.weft.fibers[idx]
-            new_weft_fibers.append(step_fiber(fiber, initial_fiber_state, cfg.step))
+            new_weft_fibers.append(step_fiber(cfg, fiber, initial_fiber_state))
 
         new_warp_fibers = []
         for idx, fiber in enumerate(previous_mesh.warp.fibers):
             initial_fiber_state = initial_mesh.warp.fibers[idx]
-            new_warp_fibers.append(step_fiber(fiber, initial_fiber_state, cfg.step))
+            new_warp_fibers.append(step_fiber(cfg, fiber, initial_fiber_state))
 
         previous_mesh = geo.Mesh(
             warp=geo.Layer(new_warp_fibers),
