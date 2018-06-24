@@ -25,7 +25,7 @@ class Mesh:
 class Pulse:
     radius: float
     amplitude: float
-    center: geo.Point
+    center: geo.Vector
 
 
 @dataclass
@@ -112,7 +112,7 @@ def parse(f: IO) -> Config:
                 pulse=Pulse(
                     radius=task['solver']['pulse']['radius'],
                     amplitude=task['solver']['pulse']['amplitude'],
-                    center=geo.Point(
+                    center=geo.Vector(
                         x=task['solver']['pulse']['center']['x'],
                         y=task['solver']['pulse']['center']['y'],
                         z=task['solver']['pulse']['center']['z'],

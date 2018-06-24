@@ -6,38 +6,33 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Point:
+class Vector:
     x: float
     y: float
     z: float
-    vx: float
-    vy: float
-    vz: float
 
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
-        self.vx = self.vy = self.vz = 0
-
-    def __add__(self, other: 'Point') -> 'Point':
-        assert isinstance(other, Point)
-        return Point(
-            self.x + other.x,
-            self.y + other.y,
-            self.z + other.z,
+    def __add__(self, other: 'Vector') -> 'Vector':
+        return Vector(
+            x=self.x + other.x,
+            y=self.y + other.y,
+            z=self.z + other.z,
         )
 
-    def __mul__(self, c: 'float') -> 'Point':
-        return Point(
-            self.x * c,
-            self.y * c,
-            self.z * c,
+    def __mul__(self, c: float) -> 'Vector':
+        return Vector(
+            x=self.x * c,
+            y=self.y * c,
+            z=self.z * c,
         )
 
-    def dist(self, other: 'Point') -> float:
-        assert isinstance(other, Point)
+    def dist(self, other: 'Vector') -> float:
         return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.z) ** 2) ** 0.5
+
+
+@dataclass
+class Point:
+    coords: Vector
+    data: float = 0
 
 
 @dataclass
@@ -46,7 +41,7 @@ class Fiber:
 
     def shift(self, dp: Point) -> 'Fiber':
         return Fiber(points=[
-            p + dp for p in self.points
+            Point(p.coords + dp.coords, p.data) for p in self.points
         ])
 
 
@@ -61,16 +56,20 @@ class Mesh:
     warp: Layer
 
     def make_vtu_grid(self):
-        ug = vtk.vtkUnstructuredGrid()
         all_points = vtk.vtkPoints()
+        values = vtk.vtkDoubleArray()
+
+        ug = vtk.vtkUnstructuredGrid()
         ug.SetPoints(all_points)
+        ug.GetPointData().SetScalars(values)
 
         current_idx = 0
         for fiber in itertools.chain(self.weft.fibers, self.warp.fibers):
             polyline = vtk.vtkPolyLine()
             for point in fiber.points:
-                all_points.InsertNextPoint(point.x, point.y, point.z)
+                all_points.InsertNextPoint(point.coords.x, point.coords.y, point.coords.z)
                 polyline.GetPointIds().InsertNextId(current_idx)
+                values.InsertNextValue(point.data)
                 current_idx += 1
 
             ug.InsertNextCell(polyline.GetCellType(), polyline.GetPointIds())

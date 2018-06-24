@@ -8,16 +8,16 @@ from . import logger
 _LOGGER = logger.get_logger()
 
 
-def get_force(cfg: config.Pulse, point: geo.Point) -> geo.Point:
+def get_force(cfg: config.Pulse, point: geo.Vector) -> geo.Vector:
     pulse_center = cfg.center
     pulse_center.z = point.z  # pulse in XY projection, so use point.z as an ugly hack
 
     r = point.dist(pulse_center)
     if r <= cfg.radius:
         phase = (math.pi / 2) * (r / cfg.radius)
-        return geo.Point(0.0, 0.0, cfg.amplitude * math.cos(phase) ** 2)
+        return geo.Vector(0.0, 0.0, cfg.amplitude * math.cos(phase) ** 2)
     else:
-        return geo.Point(0.0, 0.0, 0.0)
+        return geo.Vector(0.0, 0.0, 0.0)
 
 
 def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fiber) -> geo.Fiber:
@@ -30,17 +30,17 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
 
         initial_point = initial_fiber_state.points[idx]
         initial_left_point = initial_fiber_state.points[idx - 1]
-        initial_left_dist = initial_point.dist(initial_left_point)
+        initial_left_dist = initial_point.coords.dist(initial_left_point.coords)
         initial_right_point = initial_fiber_state.points[idx + 1]
-        initial_right_dist = initial_point.dist(initial_right_point)
+        initial_right_dist = initial_point.coords.dist(initial_right_point.coords)
 
         left_point = fiber.points[idx - 1]
-        left_dist = point.dist(left_point)
-        phi_left = math.asin((left_point.z - point.z) / left_dist)
+        left_dist = point.coords.dist(left_point.coords)
+        phi_left = math.asin((left_point.coords.z - point.coords.z) / left_dist)
 
         right_point = fiber.points[idx + 1]
-        right_dist = point.dist(right_point)
-        phi_right = math.asin((right_point.z - point.z) / right_dist)
+        right_dist = point.coords.dist(right_point.coords)
+        phi_right = math.asin((right_point.coords.z - point.coords.z) / right_dist)
 
         E = 10  # in parrots again, not real physical value
 
@@ -55,12 +55,17 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
         Tz = left_force_modulus * math.sin(phi_left) + right_force_modulus * math.sin(phi_right)
         Tplane = - left_force_modulus * math.cos(phi_left) + right_force_modulus * math.cos(phi_right)
 
-        ext_force = get_force(cfg.pulse, point)
-        force = geo.Point(ext_force.x, ext_force.y, ext_force.z + Tz)
+        ext_force = get_force(cfg.pulse, point.coords)
+        force = geo.Vector(ext_force.x, ext_force.y, ext_force.z + Tz)
 
-        new_points.append(
-            point + force * cfg.step
+        new_point = geo.Point(
+            point.coords + force * cfg.step,
         )
+
+        # TODO(i.kosolapov): Good enough?
+        new_point.data = new_point.coords.dist(initial_point.coords)
+
+        new_points.append(new_point)
 
     return geo.Fiber(new_points)
 
