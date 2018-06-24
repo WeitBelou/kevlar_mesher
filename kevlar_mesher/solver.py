@@ -44,13 +44,15 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
 
         E = 10  # in parrots again, not real physical value
 
-        left_force_modulus = E * (left_dist - initial_left_dist) / initial_left_dist
-        if left_force_modulus < 0:
-            left_force_modulus = 0
+        left_eps = (left_dist - initial_left_dist) / initial_left_dist
+        if left_eps < 0:
+            left_eps = 0
+        left_force_modulus = E * left_eps
 
-        right_force_modulus = E * (right_dist - initial_right_dist) / initial_right_dist
-        if right_force_modulus < 0:
-            right_force_modulus = 0
+        right_eps = (right_dist - initial_right_dist) / initial_right_dist
+        if right_eps < 0:
+            right_eps = 0
+        right_force_modulus = E * right_eps
 
         Tz = left_force_modulus * math.sin(phi_left) + right_force_modulus * math.sin(phi_right)
         Tplane = - left_force_modulus * math.cos(phi_left) + right_force_modulus * math.cos(phi_right)
@@ -62,8 +64,7 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
             point.coords + force * cfg.step,
         )
 
-        # TODO(i.kosolapov): Good enough?
-        new_point.data = new_point.coords.dist(initial_point.coords)
+        new_point.data = (left_eps + right_eps) / 2
 
         new_points.append(new_point)
 
