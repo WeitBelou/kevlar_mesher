@@ -10,6 +10,6 @@ fix_permissions() {
     chown -R ${HOST_UID} ${OUTDIR}
     exit ${rv}
 }
-trap fix_permissions INT TERM EXIT
+trap fix_permissions EXIT
 
 python3 -m kevlar_mesher -c config.yaml
