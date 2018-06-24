@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
+IFS=$'\n\t'
 
 : ${HOST_UID:?"HOST_UID has to be set"}
-
-OUTDIR=out
+: ${OUTDIR:?"OUTDIR has to be set"}
 
 fix_permissions() {
     rv=$?
