@@ -1,6 +1,6 @@
 import pathlib
 
-import vtk
+from vtk import vtkXMLDataSetWriter
 
 from . import geo
 
@@ -12,7 +12,7 @@ def save(mesh: geo.Mesh, out_dir: str, name: str):
 
     grid = mesh.make_vtu_grid()
 
-    writer = vtk.vtkXMLDataSetWriter()
+    writer = vtkXMLDataSetWriter()
     writer.SetFileName(str(out.absolute()))
     writer.SetInputData(grid)
     writer.Write()

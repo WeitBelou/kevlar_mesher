@@ -20,12 +20,52 @@ class Mesh:
     length: float
     warp_density: float
 
+    @property
+    def yaml(self):
+        return dict(
+            resolution=self.resolution,
+            diameter=self.diameter,
+            width=self.width,
+            weft_density=self.weft_density,
+            length=self.length,
+            warp_density=self.warp_density,
+        )
+
+    @staticmethod
+    def from_yaml(data) -> 'Mesh':
+        return Mesh(
+            resolution=data['resolution'],
+            diameter=data['diameter'],
+
+            width=data['width'],
+            weft_density=data['weft_density'],
+
+            length=data['length'],
+            warp_density=data['warp_density'],
+        )
+
 
 @dataclass
 class Pulse:
     radius: float
     amplitude: float
     center: geo.Vector
+
+    @property
+    def yaml(self):
+        return dict(
+            radius=self.radius,
+            amplitude=self.amplitude,
+            center=self.center.yaml,
+        )
+
+    @staticmethod
+    def from_yaml(data) -> 'Pulse':
+        return Pulse(
+            radius=data['radius'],
+            amplitude=data['amplitude'],
+            center=geo.Vector.from_yaml(data['center'])
+        )
 
 
 @dataclass
@@ -34,6 +74,22 @@ class Solver:
     n_steps: int
     pulse: Pulse
 
+    @property
+    def yaml(self):
+        return dict(
+            step=self.step,
+            n_steps=self.n_steps,
+            pulse=self.pulse.yaml
+        )
+
+    @staticmethod
+    def from_yaml(data) -> 'Solver':
+        return Solver(
+            step=data['step'],
+            n_steps=data['n_steps'],
+            pulse=Pulse.from_yaml(data['pulse'])
+        )
+
 
 @dataclass
 class Task:
@@ -41,11 +97,41 @@ class Task:
     mesh: Mesh
     solver: Solver
 
+    @property
+    def yaml(self):
+        return dict(
+            name=self.name,
+            mesh=self.mesh.yaml,
+            solver=self.solver.yaml,
+        )
+
+    @staticmethod
+    def from_yaml(data) -> 'Task':
+        return Task(
+            name=data['name'],
+            mesh=Mesh.from_yaml(data['mesh']),
+            solver=Solver.from_yaml(data['solver']),
+        )
+
 
 @dataclass
 class Config:
     out_dir: str
     tasks: List[Task]
+
+    @property
+    def yaml(self):
+        return dict(
+            out_dir=self.out_dir,
+            tasks=[task.yaml for task in self.tasks]
+        )
+
+    @staticmethod
+    def from_yaml(data) -> 'Config':
+        return Config(
+            out_dir=data['out_dir'],
+            tasks=[Task.from_yaml(task) for task in data['tasks']]
+        )
 
 
 def _get_schema():
@@ -67,7 +153,7 @@ def _get_schema():
             }),
             Required('solver'): Schema({
                 Required('step'): positive_number,
-                Required('n_steps'): All(int, Range(min=0, min_included=False, max=10000)),
+                Required('n_steps'): All(int, Range(min=0, min_included=False, max=1000)),
                 Required('pulse'): Schema({
                     Required('radius'): positive_number,
                     Required('amplitude'): positive_number,
@@ -93,31 +179,4 @@ def parse(f: IO) -> Config:
 
     _schema(data)
 
-    return Config(tasks=[
-        Task(
-            name=task['name'],
-            mesh=Mesh(
-                resolution=task['mesh']['resolution'],
-                diameter=task['mesh']['diameter'],
-
-                width=task['mesh']['width'],
-                weft_density=task['mesh']['weft_density'],
-
-                length=task['mesh']['length'],
-                warp_density=task['mesh']['warp_density'],
-            ),
-            solver=Solver(
-                step=task['solver']['step'],
-                n_steps=task['solver']['n_steps'],
-                pulse=Pulse(
-                    radius=task['solver']['pulse']['radius'],
-                    amplitude=task['solver']['pulse']['amplitude'],
-                    center=geo.Vector(
-                        x=task['solver']['pulse']['center']['x'],
-                        y=task['solver']['pulse']['center']['y'],
-                        z=task['solver']['pulse']['center']['z'],
-                    ),
-                ),
-            ),
-        ) for task in data['tasks']
-    ], out_dir=data['out_dir'])
+    return Config.from_yaml(data)

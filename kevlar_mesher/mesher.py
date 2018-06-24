@@ -67,12 +67,12 @@ def create_parametrized_line(fn: Callable[[float], geo.Vector], start: float, en
 
 
 def create_mesh(task: config.Mesh) -> geo.Mesh:
-    _LOGGER.info('meshing warp...')
+    _LOGGER.info('Meshing warp...')
     warp = create_warp(task)
-    _LOGGER.info('finish meshing warp...')
+    _LOGGER.info('Finish meshing warp...')
 
-    _LOGGER.info('meshing weft...')
+    _LOGGER.info('Meshing weft...')
     weft = create_weft(task)
-    _LOGGER.info('finish meshing weft...')
+    _LOGGER.info('Finish meshing weft...')
 
     return geo.Mesh(weft=weft, warp=warp)

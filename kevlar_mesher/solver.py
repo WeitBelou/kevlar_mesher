@@ -89,5 +89,4 @@ def solve(initial_mesh: geo.Mesh, cfg: config.Solver) -> Generator[None, geo.Mes
             warp=geo.Layer(new_warp_fibers),
             weft=geo.Layer(new_weft_fibers),
         )
-        _LOGGER.info(f'Done step {i + 1:d} of {cfg.n_steps:d}')
         yield previous_mesh
