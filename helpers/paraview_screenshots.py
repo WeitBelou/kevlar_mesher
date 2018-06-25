@@ -1,4 +1,4 @@
-#!/usr/bin/pvpython
+#!/usr/bin/pvbatch
 import os
 
 from paraview.simple import *
@@ -14,16 +14,13 @@ screenshots_dir = os.path.join(BASE_DIR, 'out', 'img')
 if not os.path.exists(screenshots_dir):
     os.makedirs(screenshots_dir)
 
-reader = XMLUnstructuredGridReader()
-
 for density in [1, 2, 5]:
     for radius in [1, 5, 10]:
         for amplitude in [0.1, 1, 10]:
             for (idx, step) in enumerate([0, 50, 100, 150, 200, 249]):
                 base_name = 'density_{}_radius_{}_amplitude_{}'.format(density, radius, amplitude)
                 vtu_file = os.path.join(BASE_DIR, 'out', '{}-{:04d}.vtu'.format(base_name, step))
-                reader.FileName = [vtu_file]
-                reader.UpdatePipeline()
+                reader = XMLUnstructuredGridReader(FileName=vtu_file)
 
                 # position camera
                 view = GetActiveView()
@@ -58,3 +55,4 @@ for density in [1, 2, 5]:
                     os.makedirs(image_dir)
 
                 WriteImage(os.path.join(image_dir, '{}.png'.format(idx+1)))
+                Delete(reader)
