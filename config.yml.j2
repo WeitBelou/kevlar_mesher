@@ -25,9 +25,9 @@
 out_dir: out
 
 tasks:
-{% for radius in [1, 5, 10] %}
-  {% for amplitude in [0.1, 1, 10] %}
-    {% for density in [1, 2, 5] %}
+{% for radius in [1] %}
+  {% for amplitude in [0.1] %}
+    {% for density in [5] %}
   - name: "density_{{ density }}_radius_{{ radius}}_amplitude_{{ amplitude }}"
     mesh:
       resolution: 1

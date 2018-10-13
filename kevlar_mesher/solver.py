@@ -1,9 +1,7 @@
 import math
 from typing import Generator
 
-from . import config
-from . import geo
-from . import logger
+from . import config, geo, logger
 
 _LOGGER = logger.get_logger()
 
@@ -30,17 +28,21 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
 
         initial_point = initial_fiber_state.points[idx]
         initial_left_point = initial_fiber_state.points[idx - 1]
-        initial_left_dist = initial_point.coords.dist(initial_left_point.coords)
+        initial_left_dist = initial_point.coords.dist(
+            initial_left_point.coords)
         initial_right_point = initial_fiber_state.points[idx + 1]
-        initial_right_dist = initial_point.coords.dist(initial_right_point.coords)
+        initial_right_dist = initial_point.coords.dist(
+            initial_right_point.coords)
 
         left_point = fiber.points[idx - 1]
         left_dist = point.coords.dist(left_point.coords)
-        phi_left = math.asin((left_point.coords.z - point.coords.z) / left_dist)
+        phi_left = math.asin(
+            (left_point.coords.z - point.coords.z) / left_dist)
 
         right_point = fiber.points[idx + 1]
         right_dist = point.coords.dist(right_point.coords)
-        phi_right = math.asin((right_point.coords.z - point.coords.z) / right_dist)
+        phi_right = math.asin(
+            (right_point.coords.z - point.coords.z) / right_dist)
 
         E = 10  # in parrots again, not real physical value
 
@@ -54,8 +56,10 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
             right_eps = 0
         right_force_modulus = E * right_eps
 
-        Tz = left_force_modulus * math.sin(phi_left) + right_force_modulus * math.sin(phi_right)
-        Tplane = - left_force_modulus * math.cos(phi_left) + right_force_modulus * math.cos(phi_right)
+        Tz = left_force_modulus * \
+            math.sin(phi_left) + right_force_modulus * math.sin(phi_right)
+        Tplane = - left_force_modulus * \
+            math.cos(phi_left) + right_force_modulus * math.cos(phi_right)
 
         ext_force = get_force(cfg.pulse, point.coords)
         force = geo.Vector(ext_force.x, ext_force.y, ext_force.z + Tz)
@@ -74,7 +78,7 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
 def solve(initial_mesh: geo.Mesh, cfg: config.Solver) -> Generator[None, geo.Mesh, None]:
     previous_mesh = initial_mesh
 
-    for i in range(cfg.n_steps):
+    for _ in range(cfg.n_steps):
         new_weft_fibers = []
         for idx, fiber in enumerate(previous_mesh.weft.fibers):
             initial_fiber_state = initial_mesh.weft.fibers[idx]

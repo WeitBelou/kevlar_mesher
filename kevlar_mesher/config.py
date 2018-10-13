@@ -1,10 +1,10 @@
 from typing import IO, List
 
-from dataclasses import dataclass
 from voluptuous import All, Length
 
-from . import geo
-from . import logger
+from dataclasses import dataclass
+
+from . import geo, logger
 
 _LOGGER = logger.get_logger()
 

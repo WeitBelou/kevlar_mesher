@@ -4,6 +4,3 @@
 
 # Out
 out/
-
-# Singularity bundles
-*.img

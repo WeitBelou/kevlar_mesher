@@ -3,8 +3,7 @@ from typing import Callable
 
 import numpy as np
 
-from . import config, logger
-from . import geo
+from . import config, geo, logger
 
 _LOGGER = logger.get_logger()
 
@@ -20,7 +19,7 @@ def create_warp(task: config.Mesh) -> geo.Layer:
 
     fibers = [root_fiber]
     dp = geo.Point(geo.Vector(0, fibers_step, 0))
-    for i in range(n_fibers):
+    for _ in range(n_fibers):
         fibers.append(fibers[-1].shift(dp=dp))
 
     return geo.Layer(fibers=fibers)
