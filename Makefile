@@ -16,6 +16,4 @@ build:
 
 .PHONY: run
 run: build
-	docker run -p 8888:8888 \
-	-v $(PWD)/out:/home/$(DOCKER_USER)/out:rw \
-	$(IMAGE)
+	docker -v $(PWD)/out:/home/$(DOCKER_USER)/out:rw $(IMAGE)
