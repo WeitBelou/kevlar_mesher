@@ -2,13 +2,17 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-docker build -t kevlar_solver .
+IMAGE=kevlar_solver
+VOLUME=kevlar_solver
+CONTAINER=kevlar_solver
 
-OUTDIR=${OUTDIR:-out}
+docker build -t "${IMAGE}" .
 
-docker rm kevlar_solver || true
+docker rm ${CONTAINER} || true
+docker volume rm ${VOLUME} || true
 
-docker run --name kevlar_solve \
-    --rm -v "$(pwd)/out:/app/out" \
-    -e HOST_UID=${UID} \
-    -e OUTDIR=${OUTDIR} kevlar_solver
+docker volume create ${VOLUME}
+
+docker run --name "${CONTAINER}" -v "${VOLUME}:/app/out" ${CONTAINER}
+
+docker cp "${CONTAINER}:/app/out" out
