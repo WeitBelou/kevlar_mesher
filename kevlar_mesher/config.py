@@ -73,13 +73,15 @@ class Solver:
     step: float
     n_steps: int
     pulse: Pulse
+    collisions_enabled: bool
 
     @property
     def yaml(self):
         return dict(
             step=self.step,
             n_steps=self.n_steps,
-            pulse=self.pulse.yaml
+            pulse=self.pulse.yaml,
+            collisions_enabled=self.collisions_enabled,
         )
 
     @staticmethod
@@ -87,7 +89,8 @@ class Solver:
         return Solver(
             step=data['step'],
             n_steps=data['n_steps'],
-            pulse=Pulse.from_yaml(data['pulse'])
+            pulse=Pulse.from_yaml(data['pulse']),
+            collisions_enabled=data['collisions_enabled']
         )
 
 
@@ -162,7 +165,8 @@ def _get_schema():
                         Required('y'): number,
                         Required('z'): number,
                     })
-                })
+                }),
+                Required('collisions_enabled'): bool,
             })
         })]
     })

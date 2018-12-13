@@ -25,20 +25,19 @@
 out_dir: out
 
 tasks:
-{% for radius in [1] %}
-  {% for amplitude in [0.1] %}
-    {% for density in [5] %}
-  - name: "density_{{ density }}_radius_{{ radius}}_amplitude_{{ amplitude }}"
+{% for collisions in [True, False] %}
+  - name: "collisions_{{ 'enabled' if collisions else 'disabled'}}"
     mesh:
       resolution: 1
       diameter: 0.001
       width: 100
-      weft_density: !!int "{{ density }}"
+      weft_density: 5
       length: 100
-      warp_density: !!int "{{ density }}"
+      warp_density: 5
     solver:
       step: 0.1
       n_steps: 100
+      collisions_enabled: true
       pulse:
         radius: 5
         amplitude: 1
@@ -46,6 +45,4 @@ tasks:
           x: 50
           y: 50
           z: 0
-    {% endfor %}
-  {% endfor %}
 {% endfor %}
