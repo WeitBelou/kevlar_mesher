@@ -8,11 +8,9 @@ CONTAINER=kevlar_solver
 
 docker build -t "${IMAGE}" .
 
-docker rm ${CONTAINER} || true
-docker volume rm ${VOLUME} || true
+docker stop ${CONTAINER} || true
 
-docker volume create ${VOLUME}
-
-docker run --name "${CONTAINER}" -v "${VOLUME}:/app/out" ${CONTAINER}
-
-docker cp "${CONTAINER}:/app/out" out
+docker run --rm \
+    --name "${CONTAINER}" \
+    -v "$(pwd)/out:/app/out" \
+    ${IMAGE}

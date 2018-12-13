@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y python3-pip python3-vtk7
 ADD requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt
 
+WORKDIR /app
+
 ADD kevlar_mesher kevlar_mesher
 ADD config.yml.j2 config.yml.j2
 
