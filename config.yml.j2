@@ -25,8 +25,7 @@
 out_dir: out
 
 tasks:
-{% for collisions in [True, False] %}
-  - name: "collisions_{{ 'enabled' if collisions else 'disabled'}}"
+  - name: "example"
     mesh:
       resolution: 1
       diameter: 0.001
@@ -37,7 +36,6 @@ tasks:
     solver:
       step: 0.1
       n_steps: 100
-      collisions_enabled: true
       pulse:
         radius: 5
         amplitude: 1
@@ -45,4 +43,3 @@ tasks:
           x: 50
           y: 50
           z: 0
-{% endfor %}

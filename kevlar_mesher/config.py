@@ -73,7 +73,6 @@ class Solver:
     step: float
     n_steps: int
     pulse: Pulse
-    collisions_enabled: bool
 
     @property
     def yaml(self):
@@ -166,7 +165,6 @@ def _get_schema():
                         Required('z'): number,
                     })
                 }),
-                Required('collisions_enabled'): bool,
             })
         })]
     })

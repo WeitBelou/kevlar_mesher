@@ -71,48 +71,6 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
     return geo.Fiber(new_points)
 
 
-def compute_collisions(weft: geo.Layer, warp: geo.Layer) -> Tuple[geo.Layer, geo.Layer]:
-    def get_deformation_range_indices(f: geo.Fiber) -> Tuple[int, int]:
-        begin = 0
-        for p in f.points:
-            if not math.isclose(p.coords.z, 0, abs_tol=0.001):
-                break
-            begin += 1
-
-        end = len(f.points)
-        for p in f.points[::-1]:
-            if not math.isclose(p.coords.z, 0, abs_tol=0.001):
-                break
-            end -= 1
-
-        return begin, end
-
-    # Determine deformation area
-    weft_points_begin, weft_points_end = get_deformation_range_indices(weft.fibers[len(weft.fibers) // 2])
-    warp_points_begin, warp_points_end = get_deformation_range_indices(warp.fibers[len(warp.fibers) // 2])
-
-    weft_points_window = (weft_points_end - weft_points_begin) / len(weft.fibers[len(weft.fibers) // 2].points)
-    warp_points_window = (warp_points_end - warp_points_begin) / len(warp.fibers[len(warp.fibers) // 2].points)
-
-    weft_fiber_begin = int(len(weft.fibers) * (1 + warp_points_window) / 2)
-    weft_fiber_end = int(len(weft.fibers) * (1 - warp_points_window) / 2)
-
-    warp_fiber_begin = int(len(warp.fibers) * (1 + warp_points_window) / 2)
-    warp_fiber_end = int(len(warp.fibers) * (1 - weft_points_window) / 2)
-
-    for i in range(weft_fiber_begin, weft_fiber_end):
-        for j in range(warp_fiber_begin, warp_fiber_end):
-            for k in range(weft_points_begin, weft_points_end):
-                for l in range(warp_points_begin, warp_points_end):
-                    if math.isclose(weft.fibers[i].points[k].coords.dist(warp.fibers[j].points[l].coords), 0,
-                                    abs_tol=0.001):
-                        avg_point = (weft.fibers[i].points[k].coords + warp.fibers[j].points[l].coords) * 0.5
-                        weft.fibers[i].points[k].coords = avg_point
-                        warp.fibers[j].points[l].coords = avg_point
-
-    return weft, warp
-
-
 def solve(initial_mesh: geo.Mesh, cfg: config.Solver) -> Generator[None, geo.Mesh, None]:
     previous_mesh = initial_mesh
 
@@ -128,9 +86,6 @@ def solve(initial_mesh: geo.Mesh, cfg: config.Solver) -> Generator[None, geo.Mes
             initial_fiber_state = initial_mesh.warp.fibers[idx]
             new_warp_fibers.append(step_fiber(cfg, fiber, initial_fiber_state))
         new_warp = geo.Layer(new_warp_fibers)
-
-        if cfg.collisions_enabled:
-            new_weft, new_warp = compute_collisions(new_weft, new_warp)
 
         previous_mesh = geo.Mesh(
             warp=new_warp,
