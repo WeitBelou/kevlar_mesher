@@ -80,7 +80,6 @@ class Solver:
             step=self.step,
             n_steps=self.n_steps,
             pulse=self.pulse.yaml,
-            collisions_enabled=self.collisions_enabled,
         )
 
     @staticmethod
@@ -89,7 +88,6 @@ class Solver:
             step=data['step'],
             n_steps=data['n_steps'],
             pulse=Pulse.from_yaml(data['pulse']),
-            collisions_enabled=data['collisions_enabled']
         )
 
 
