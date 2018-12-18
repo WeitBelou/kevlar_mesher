@@ -26,25 +26,9 @@ def create_warp(task: config.Mesh) -> geo.Layer:
 
 
 def create_weft(task: config.Mesh) -> geo.Layer:
+    # NOTE(i.kosolapov): Diameter too small
     def fn(t: float) -> geo.Vector:
-        r = task.diameter / 2
-        d = 1 / task.warp_density
-
-        if t < r:
-            return geo.Vector(0, t, math.sqrt(r ** 2 - t ** 2))
-        elif t < d - r:
-            return geo.Vector(0, t, 0)
-        elif t < d + r:
-            return geo.Vector(0, t, -math.sqrt(r ** 2 - (t - d) ** 2))
-        elif t < 2 * d - r:
-            return geo.Vector(0, t, 0)
-        elif t < 2 * d:
-            return geo.Vector(0, t, math.sqrt(r ** 2 - (t - 2 * d) ** 2))
-        else:
-            n_periods = int(t / (2 * d))
-            p = fn(t - n_periods * 2 * d)
-
-            return p + geo.Vector(0, 2 * d * n_periods, 0)
+        return geo.Vector(0, t, 0)
 
     fibers_step = 1 / task.weft_density
     n_fibers = int(task.weft_density * task.length)

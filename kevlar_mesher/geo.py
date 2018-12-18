@@ -1,4 +1,5 @@
 import itertools
+import math
 from typing import List
 
 from dataclasses import dataclass
@@ -26,7 +27,7 @@ class Vector:
         )
 
     def dist(self, other: 'Vector') -> float:
-        return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.z) ** 2) ** 0.5
+        return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.z) ** 2)
 
     @property
     def yaml(self):
