@@ -1,5 +1,5 @@
 import math
-from typing import Generator, Tuple
+from typing import Generator
 
 from . import config, geo, logger
 
@@ -19,6 +19,8 @@ def get_force(cfg: config.Pulse, point: geo.Vector) -> geo.Vector:
 
 
 def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fiber) -> geo.Fiber:
+    speed_of_sound_squared = 10
+
     new_points = []
     for idx, point in enumerate(fiber.points):
         # Do not touch edge points for the moment, they are quite complicated
@@ -27,43 +29,40 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
             continue
 
         initial_point = initial_fiber_state.points[idx]
+
         initial_left_point = initial_fiber_state.points[idx - 1]
-        initial_left_dist = initial_point.coords.dist(
-            initial_left_point.coords)
+        initial_left_dist = initial_point.coords.dist(initial_left_point.coords)
+
         initial_right_point = initial_fiber_state.points[idx + 1]
-        initial_right_dist = initial_point.coords.dist(
-            initial_right_point.coords)
+        initial_right_dist = initial_point.coords.dist(initial_right_point.coords)
 
         left_point = fiber.points[idx - 1]
         left_dist = point.coords.dist(left_point.coords)
-        phi_left = math.asin(
-            (left_point.coords.z - point.coords.z) / left_dist)
+        sin_phi_left = (left_point.coords.z - point.coords.z) / left_dist
 
         right_point = fiber.points[idx + 1]
         right_dist = point.coords.dist(right_point.coords)
-        phi_right = math.asin(
-            (right_point.coords.z - point.coords.z) / right_dist)
-
-        E = 10  # in parrots again, not real physical value
+        sin_phi_right = (right_point.coords.z - point.coords.z) / right_dist
 
         left_eps = (left_dist - initial_left_dist) / initial_left_dist
         if left_eps < 0:
             left_eps = 0
-        left_force_modulus = E * left_eps
+        left_force_modulus = speed_of_sound_squared * left_eps
 
         right_eps = (right_dist - initial_right_dist) / initial_right_dist
         if right_eps < 0:
             right_eps = 0
-        right_force_modulus = E * right_eps
+        right_force_modulus = speed_of_sound_squared * right_eps
 
-        Tz = (left_force_modulus * math.sin(phi_left) + right_force_modulus * math.sin(phi_right))
-        Tplane = (- left_force_modulus * math.cos(phi_left) + right_force_modulus * math.cos(phi_right))
+        tension_force_normal = (left_force_modulus * sin_phi_left + right_force_modulus * sin_phi_right)
 
         ext_force = get_force(cfg.pulse, point.coords)
-        force = geo.Vector(ext_force.x, ext_force.y, ext_force.z + Tz)
+        force = geo.Vector(ext_force.x, ext_force.y, ext_force.z + tension_force_normal)
 
-        new_point = geo.Point(point.coords + force * cfg.step)
-
+        new_point = geo.Point(
+            coords=point.coords + point.velocity * cfg.step,
+            velocity=geo.Point.velocity + force * cfg.step
+        )
         new_point.data = (left_eps + right_eps) / 2
 
         new_points.append(new_point)

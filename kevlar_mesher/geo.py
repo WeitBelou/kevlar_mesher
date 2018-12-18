@@ -49,6 +49,7 @@ class Vector:
 @dataclass
 class Point:
     coords: Vector
+    velocity: Vector = Vector(x=0, y=0, z=0)
     data: float = 0
 
 
@@ -75,12 +76,12 @@ class Mesh:
     def make_vtu_grid(self):
         all_points = vtkPoints()
 
-        values = vtkDoubleArray()
-        values.SetName('displacement')
+        displacement = vtkDoubleArray()
+        displacement.SetName('displacement')
 
         ug = vtkUnstructuredGrid()
         ug.SetPoints(all_points)
-        ug.GetPointData().SetScalars(values)
+        ug.GetPointData().SetScalars(displacement)
 
         current_idx = 0
         for fiber in itertools.chain(self.weft.fibers, self.warp.fibers):
@@ -88,7 +89,7 @@ class Mesh:
             for point in fiber.points:
                 all_points.InsertNextPoint(point.coords.x, point.coords.y, point.coords.z)
                 polyline.GetPointIds().InsertNextId(current_idx)
-                values.InsertNextValue(point.data)
+                displacement.InsertNextValue(point.data)
                 current_idx += 1
 
             ug.InsertNextCell(polyline.GetCellType(), polyline.GetPointIds())
