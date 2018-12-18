@@ -3,7 +3,7 @@ import math
 from typing import List
 
 from dataclasses import dataclass
-from vtk import vtkDoubleArray, vtkPolyLine, vtkUnstructuredGrid, vtkPoints
+from vtk import vtkDoubleArray, vtkPolyLine, vtkUnstructuredGrid, vtkPoints, vtkVector3
 
 from . import logger
 
@@ -83,9 +83,14 @@ class Mesh:
         displacement = vtkDoubleArray()
         displacement.SetName('displacement')
 
+        velocity = vtkDoubleArray()
+        velocity.SetName('velocity')
+        velocity.SetNumberOfComponents(3)
+
         ug = vtkUnstructuredGrid()
         ug.SetPoints(all_points)
         ug.GetPointData().SetScalars(displacement)
+        ug.GetPointData().SetVectors(velocity)
 
         current_idx = 0
         for fiber in itertools.chain(self.weft.fibers, self.warp.fibers):
@@ -94,6 +99,7 @@ class Mesh:
                 all_points.InsertNextPoint(point.coords.x, point.coords.y, point.coords.z)
                 polyline.GetPointIds().InsertNextId(current_idx)
                 displacement.InsertNextValue(point.data)
+                velocity.InsertNextTuple3(point.velocity.x, point.velocity.y, point.velocity.z)
                 current_idx += 1
 
             ug.InsertNextCell(polyline.GetCellType(), polyline.GetPointIds())
