@@ -59,13 +59,11 @@ def step_fiber(cfg: config.Solver, fiber: geo.Fiber, initial_fiber_state: geo.Fi
         ext_force = get_force(cfg.pulse, point.coords)
         force = geo.Vector(ext_force.x, ext_force.y, ext_force.z + tension_force_normal)
 
-        new_point = geo.Point(
+        new_points.append(geo.Point(
             coords=point.coords + point.velocity * cfg.step,
-            velocity=geo.Point.velocity + force * cfg.step
-        )
-        new_point.data = (left_eps + right_eps) / 2
-
-        new_points.append(new_point)
+            velocity=point.velocity + force * cfg.step,
+            data=(left_eps + right_eps) / 2,
+        ))
 
     return geo.Fiber(new_points)
 

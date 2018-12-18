@@ -5,6 +5,10 @@ from typing import List
 from dataclasses import dataclass
 from vtk import vtkDoubleArray, vtkPolyLine, vtkUnstructuredGrid, vtkPoints
 
+from . import logger
+
+_LOGGER = logger.get_logger()
+
 
 @dataclass
 class Vector:
@@ -59,7 +63,7 @@ class Fiber:
 
     def shift(self, dp: Point) -> 'Fiber':
         return Fiber(points=[
-            Point(p.coords + dp.coords, p.data) for p in self.points
+            Point(coords=p.coords + dp.coords, data=p.data) for p in self.points
         ])
 
 
